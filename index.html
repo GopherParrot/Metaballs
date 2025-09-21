@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metaballs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            touch-action: none; /* Prevents default browser gestures like scrolling */
+        }
+        .ui-container {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 10;
+        }
+        .settings-icon {
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+            color: #e6edf3;
+        }
+        .settings-icon:hover {
+            transform: scale(1.1) rotate(45deg);
+        }
+        .panel {
+            background-color: #21262d;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            width: 90%;
+            height: 80%;
+        }
+        .panel-heading {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #e6edf3;
+        }
+        .panel-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 3.5rem;
+            height: 2rem;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4b5563;
+            transition: .4s;
+            border-radius: 2rem;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 1.5rem;
+            width: 1.5rem;
+            left: 0.25rem;
+            bottom: 0.25rem;
+            background-color: #e5e7eb;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #3b82f6;
+        }
+        input:checked + .slider:before {
+            transform: translateX(1.5rem);
+        }
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 0.5rem;
+            background: #4b5563;
+            outline: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            transition: background .2s ease-in-out;
+        }
+        .range-slider::-moz-range-thumb {
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            transition: background .2s ease-in-out;
+        }
+        .modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #21262d;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            min-width: 20rem;
+        }
+        .modal h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e6edf3;
+            text-align: center;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+        }
+        .modal-buttons button {
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        #resizeButton {
+            background-color: #3b82f6;
+            color: #fff;
+        }
+        #resizeButton:hover {
+            background-color: #2563eb;
+        }
+        #deleteButton {
+            background-color: #ef4444;
+            color: #fff;
+        }
+        #deleteButton:hover {
+            background-color: #dc2626;
+        }
+        #closeModalButton {
+            background-color: #4b5563;
+            color: #fff;
+        }
+        #closeModalButton:hover {
+            background-color: #374151;
+        }
+        #howToPlayPanel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #21262d;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 30rem;
+        }
+        #howToPlayPanel h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e6edf3;
+            text-align: center;
+        }
+        #howToPlayPanel ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+        }
+        #howToPlayPanel ul li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ui-container">
+        <!-- Settings Icon -->
+        <svg id="settingsIcon" class="settings-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1.51-1V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+
+        <!-- Settings Panel -->
+        <div id="settingsPanel" class="panel">
+            <div class="panel-heading">Global Settings</div>
+            <div class="panel-content">
+                <label class="flex items-center justify-between gap-2 text-sm text-gray-300">
+                    Movement:
+                    <label class="switch">
+                        <input type="checkbox" id="movementToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </label>
+                <label class="flex items-center justify-between gap-2 text-sm text-gray-300">
+                    Resize All:
+                    <input type="range" id="globalResizeSlider" min="20" max="100" value="45" class="range-slider">
+                </label>
+            </div>
+            <button id="howToPlayButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">How to Play</button>
+        </div>
+    </div>
+
+    <!-- Per-Metaball Edit Modal -->
+    <div id="editModal" class="modal">
+        <h2 id="modalTitle">Edit Metaball</h2>
+        <label class="flex flex-col gap-2 text-sm text-gray-300">
+            Size:
+            <input type="range" id="metaballSizeSlider" min="20" max="100" class="range-slider">
+        </label>
+        <div class="modal-buttons">
+            <button id="deleteButton" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Delete</button>
+            <button id="closeModalButton" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Close</button>
+        </div>
+    </div>
+
+    <!-- Add New Metaball Modal -->
+    <div id="addModal" class="modal">
+        <h2>Add New Metaball</h2>
+        <label class="flex flex-col gap-2 text-sm text-gray-300">
+            Initial Size:
+            <input type="range" id="newMetaballSizeSlider" min="20" max="100" value="45" class="range-slider">
+        </label>
+        <div class="modal-buttons">
+            <button id="addButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Add</button>
+            <button id="cancelAddButton" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Cancel</button>
+        </div>
+    </div>
+
+    <!-- How to Play Panel -->
+    <div id="howToPlayPanel" class="panel">
+        <h2>How to Play</h2>
+        <ul>
+            <li><b>Drag</b> a blob by clicking on its center.</li>
+            <li><b>Click and hold</b> on a blob to <b>edit its size or delete it</b>.</li>
+            <li><b>Click and hold</b> on an empty space on the canvas to <b>add a new blob</b>.</li>
+            <li>Use the <b>Movement toggle</b> in settings to freeze or resume all blobs.</li>
+            <li>Use the <b>Resize All</b> slider to change the size of every blob at once.</li>
+        </ul>
+        <button id="closeHowToPlayButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Close</button>
+    </div>
+
+    <canvas id="metaballCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('metaballCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let metaballs = [];
+
+        let selectedBall = null;
+        let isDragging = false;
+        let isMovementEnabled = true;
+        let longPressTimer = null;
+        let mouseDownPos = { x: 0, y: 0 };
+        
+        // --- UI Elements ---
+        const settingsIcon = document.getElementById('settingsIcon');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const movementToggle = document.getElementById('movementToggle');
+        const globalResizeSlider = document.getElementById('globalResizeSlider');
+        const howToPlayButton = document.getElementById('howToPlayButton');
+        const howToPlayPanel = document.getElementById('howToPlayPanel');
+        const closeHowToPlayButton = document.getElementById('closeHowToPlayButton');
+        
+        const editModal = document.getElementById('editModal');
+        const metaballSizeSlider = document.getElementById('metaballSizeSlider');
+        const deleteButton = document.getElementById('deleteButton');
+        const closeModalButton = document.getElementById('closeModalButton');
+
+        const addModal = document.getElementById('addModal');
+        const newMetaballSizeSlider = document.getElementById('newMetaballSizeSlider');
+        const addButton = document.getElementById('addButton');
+        const cancelAddButton = document.getElementById('cancelAddButton');
+
+        // --- Metaball Setup & UI State ---
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        
+        function createMetaballs(count) {
+            for (let i = 0; i < count; i++) {
+                metaballs.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: (Math.random() - 0.5) * 1.5,
+                    r: 45
+                });
+            }
+        }
+        
+        // --- Interaction Logic ---
+        function getEventPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            // Handle both mouse and touch events
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function findMetaballAt(x, y) {
+            for (const ball of metaballs) {
+                const dx = x - ball.x;
+                const dy = y - ball.y;
+                if (Math.sqrt(dx * dx + dy * dy) < ball.r) {
+                    return ball;
+                }
+            }
+            return null;
+        }
+
+        // Resets the interaction state to a clean slate.
+        function resetInteractionState() {
+            selectedBall = null;
+            isDragging = false;
+            // The long press timer is handled separately
+        }
+        
+        function handleMouseDown(e) {
+            // Reset state on a new mousedown
+            resetInteractionState();
+
+            mouseDownPos = getEventPos(e);
+            selectedBall = findMetaballAt(mouseDownPos.x, mouseDownPos.y);
+            isDragging = false;
+
+            // Start a timer to check for long press
+            longPressTimer = setTimeout(() => {
+                // If this timer fires, it means the user held down the mouse
+                if (selectedBall) {
+                    showEditModal(selectedBall);
+                } else {
+                    showAddModal(mouseDownPos);
+                }
+                longPressTimer = null; // Clear the timer reference
+            }, 500); // 500ms for a long press
+        }
+
+        function handleMouseMove(e) {
+            if (longPressTimer) {
+                const mousePos = getEventPos(e);
+                const dx = mousePos.x - mouseDownPos.x;
+                const dy = mousePos.y - mouseDownPos.y;
+                if (Math.sqrt(dx * dx + dy * dy) > 5) {
+                    // If the mouse moves more than a small threshold, it's a drag, not a long press
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                    isDragging = true;
+                }
+            }
+            // If dragging and a modal is not open, update the ball's position
+            if (isDragging && selectedBall && editModal.style.display !== 'flex' && addModal.style.display !== 'flex') {
+                const mousePos = getEventPos(e);
+                selectedBall.x = mousePos.x;
+                selectedBall.y = mousePos.y;
+                selectedBall.vx = 0;
+                selectedBall.vy = 0;
+            }
+        }
+
+        function handleMouseUp() {
+            // If a drag just finished, reset the state
+            if (isDragging) {
+                if (selectedBall) {
+                    // Give the ball new random velocity to resume bouncing if movement is enabled
+                    if (isMovementEnabled) {
+                        selectedBall.vx = (Math.random() - 0.5) * 1.5;
+                        selectedBall.vy = (Math.random() - 0.5) * 1.5;
+                    }
+                }
+                resetInteractionState();
+            }
+            // If it wasn't a drag, the long-press timer might still be running.
+            // We'll let it finish or be cleared by the next mousedown.
+        }
+
+        canvas.addEventListener('mousedown', handleMouseDown);
+        canvas.addEventListener('mousemove', handleMouseMove);
+        canvas.addEventListener('mouseup', handleMouseUp);
+        
+        // Touch events
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleMouseDown(e); });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleMouseMove(e); });
+        canvas.addEventListener('touchend', handleMouseUp);
+
+
+        // --- UI Handlers ---
+        settingsIcon.addEventListener('click', () => {
+            settingsPanel.style.display = settingsPanel.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        movementToggle.addEventListener('change', (e) => {
+            isMovementEnabled = e.target.checked;
+        });
+
+        globalResizeSlider.addEventListener('input', (e) => {
+            const newRadius = e.target.value;
+            metaballs.forEach(ball => ball.r = parseInt(newRadius));
+        });
+
+        howToPlayButton.addEventListener('click', () => {
+            howToPlayPanel.style.display = 'flex';
+        });
+
+        closeHowToPlayButton.addEventListener('click', () => {
+            howToPlayPanel.style.display = 'none';
+        });
+
+        // --- Modal Functions ---
+        function showEditModal(ball) {
+            selectedBall = ball;
+            metaballSizeSlider.value = ball.r;
+            editModal.style.display = 'flex';
+        }
+        
+        metaballSizeSlider.addEventListener('input', (e) => {
+            if (selectedBall) {
+                selectedBall.r = parseInt(e.target.value);
+            }
+        });
+
+        deleteButton.addEventListener('click', () => {
+            if (selectedBall) {
+                metaballs = metaballs.filter(ball => ball !== selectedBall);
+            }
+            editModal.style.display = 'none';
+            resetInteractionState();
+        });
+
+        closeModalButton.addEventListener('click', () => {
+            editModal.style.display = 'none';
+            resetInteractionState();
+        });
+
+        function showAddModal(pos) {
+            addModal.style.display = 'flex';
+            addButton.onclick = () => {
+                const newRadius = parseInt(newMetaballSizeSlider.value);
+                metaballs.push({
+                    x: pos.x,
+                    y: pos.y,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: (Math.random() - 0.5) * 1.5,
+                    r: newRadius
+                });
+                addModal.style.display = 'none';
+                resetInteractionState();
+            };
+        }
+
+        cancelAddButton.addEventListener('click', () => {
+            addModal.style.display = 'none';
+            resetInteractionState();
+        });
+
+        // Prevent default drag behavior
+        canvas.addEventListener('dragstart', (e) => e.preventDefault());
+
+        // --- Animation Loop ---
+        function animate() {
+            // Add a defensive check for canvas dimensions
+            if (canvas.width <= 0 || canvas.height <= 0) {
+                requestAnimationFrame(animate);
+                return;
+            }
+
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+            const data = imageData.data;
+            const threshold = 128;
+            
+            for (let y = 0; y < canvas.height; y++) {
+                for (let x = 0; x < canvas.width; x++) {
+                    let sum = 0;
+                    let closestBallDist = Infinity;
+
+                    for (const ball of metaballs) {
+                        const dx = x - ball.x;
+                        const dy = y - ball.y;
+                        const distSq = dx * dx + dy * dy;
+                        
+                        // Avoid division by zero
+                        if (distSq < 1e-6) {
+                           sum += Infinity;
+                           closestBallDist = 0;
+                        } else {
+                           const distance = Math.sqrt(distSq);
+                           if (distance < closestBallDist) {
+                               closestBallDist = distance;
+                           }
+                           sum += (ball.r * ball.r * 1000) / distSq;
+                        }
+                    }
+
+                    const index = (y * canvas.width + x) * 4;
+                    if (sum > threshold) {
+                        // Blend between green and blue based on distance to the closest ball
+                        const blendFactor = Math.min(1, Math.max(0, 1 - (closestBallDist / 60)));
+                        const r = Math.round(0 * (1 - blendFactor) + 0 * blendFactor);
+                        const g = Math.round(191 * (1 - blendFactor) + 255 * blendFactor);
+                        const b = Math.round(255 * (1 - blendFactor) + 0 * blendFactor);
+
+                        data[index] = r;
+                        data[index + 1] = g;
+                        data[index + 2] = b;
+                        data[index + 3] = 255;
+                    } else {
+                        data[index + 3] = 0;
+                    }
+                }
+            }
+            ctx.putImageData(imageData, 0, 0);
+
+            if (isMovementEnabled) {
+                for (const ball of metaballs) {
+                    if (ball !== selectedBall || !isDragging) {
+                        ball.x += ball.vx;
+                        ball.y += ball.vy;
+
+                        if (ball.x < 0 || ball.x > canvas.width) ball.vx *= -1;
+                        if (ball.y < 0 || ball.y > canvas.height) ball.vy *= -1;
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        window.onload = function() {
+            resizeCanvas();
+            createMetaballs(6);
+            animate();
+        };
+    </script>
+    </body>
+</html>
