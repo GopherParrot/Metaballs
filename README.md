@@ -1,4 +1,4 @@
-# Metaballs
+# <center>Metaballs</center>
 I recreated metaballs!
 
 ## But wtf are metaballs??
@@ -37,4 +37,10 @@ Each corner is assigned a binary value: a `1` if its F value is above the thresh
 #### Lookup and Interpolate
 The algorithm uses this index to look up a pre-calculated table that specifies which polygons (usually triangles) should be drawn inside that specific cube to approximate the surface. The exact vertex positions for these polygons are found by linearly interpolating between the "inside" and "outside" corners of the cube.
 
-By processing every cube in the grid, the algorithm generates a seamless, polygonal mesh that accurately represents the metaball surface. The higher the grid resolution, the more detailed and smooth the resulting mesh will be.
+By processing every cube in the grid, the algorithm generates a seamless, polygonal mesh that accurately represents the metaball surface. The higher the grid resolution, the more detailed and smooth the resulting mesh will 
+be.
+
+<hr>
+
+# The code result:
+<img width="1367" height="701" alt="image" src="https://github.com/user-attachments/assets/e317ad45-7db3-4961-9276-4839783dd5cd" />
