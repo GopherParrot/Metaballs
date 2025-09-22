@@ -1,6 +1,8 @@
 # <center>Metaballs</center>
 I recreated metaballs!
 
+check out <a src="">this page</a>
+
 ## But wtf are metaballs??
 `--> Metaballs are a computer graphics technique for creating organic, fluid-like shapes that merge and separate smoothly. They work by using an implicit function that defines a "field" of influence for each object. Rather than being defined by a fixed mesh of polygons, the surface of a metaball shape is the location where the combined influence of all the metaballs in the scene reaches a certain threshold.`
 
