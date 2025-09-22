@@ -22,15 +22,19 @@ $$F(x,y,z) = \sum_{i=1}^n \frac{R^2_i}{(x-x_i)^2+(y-y_i)^2+(z-z_i)^2}$$
 
 The final surface is all the points where $F(x,y,z)=T$, where $T$ is the threshold value. When two metaballs get close, their influence fields overlap, and the summed value between them exceeds the threshold, creating the smooth, merged "blob" effect.
 
-## Rendering the Surface: The Marching Cubes Algorithm
-Since the metaball surface isn't a regular polygonal mesh, it needs to be generated. The most common way to do this for 3D metaballs is using the Marching Cubes algorithm.
+### Rendering the Surface: The Marching Cubes Algorithm
+Since the metaball surface isn't a regular polygonal mesh, it needs to be generated. The most common way to do this for 3D metaballs is using the **Marching Cubes algorithm**.
 
-Create a Grid: A large 3D grid of "cubes" is placed over the entire scene where the metaballs exist.
+#### Create a Grid
+A large 3D grid of "cubes" is placed over the entire scene where the metaballs exist.
 
-Evaluate Corners: The algorithm "marches" through each cube, evaluating the $F(x, y, z)$ function at all eight of its corners.
+#### Evaluate Corners
+The algorithm "marches" through each cube, evaluating the $F(x, y, z)$ function at all eight of its corners.
 
-Generate a Lookup Index: Each corner is assigned a binary value: a 1 if its F value is above the threshold (inside the surface) and a 0 if it's below (outside). This creates an 8-bit index for the cube (e.g., `10010110`).
+#### Generate a Lookup Index
+Each corner is assigned a binary value: a `1` if its F value is above the threshold (inside the surface) and a `0` if it's below (outside). This creates an 8-bit index for the cube (e.g., `10010110`).
 
-Lookup and Interpolate: The algorithm uses this index to look up a pre-calculated table that specifies which polygons (usually triangles) should be drawn inside that specific cube to approximate the surface. The exact vertex positions for these polygons are found by linearly interpolating between the "inside" and "outside" corners of the cube.
+#### Lookup and Interpolate
+The algorithm uses this index to look up a pre-calculated table that specifies which polygons (usually triangles) should be drawn inside that specific cube to approximate the surface. The exact vertex positions for these polygons are found by linearly interpolating between the "inside" and "outside" corners of the cube.
 
 By processing every cube in the grid, the algorithm generates a seamless, polygonal mesh that accurately represents the metaball surface. The higher the grid resolution, the more detailed and smooth the resulting mesh will be.
