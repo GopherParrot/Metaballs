@@ -12,8 +12,8 @@ Imagine each metaball is a point in space emitting an invisible, decreasing forc
 
 The surface of the final blobby shape isn't a pre-defined mesh; it's an isosurface. An isosurface is a 3D surface where every point on it has the exact same value in a scalar field. In the case of metaballs, the scalar field is the sum of the influence fields, and the iso-value is the chosen threshold.
 
-## The magic behind
-there's no magic, magic isn't real, it's all Math! The mathematical function for a single metaball's influence at a point is often an inverse distance function, like:
+## The Math Behind the "Magic"
+There's no magic, magic isn't real, it's all math! The effect is created by a function that defines the strength of each metaball's field. While many functions can be used, a common one is the inverse-square distance function:
 # $$f(x,y,z) = \frac{R^2}{(x-x_0)^2+(y-y_0)^2+(z-z_0)^2}$$
 Where:
  - $(x,y,z)$ is the point being evaluated.
@@ -21,9 +21,27 @@ Where:
  - $R$ is a constant that controls the radius and strength of the influence.
 
 For a scene with multiple metaballs, the total field value at any point is the summation of the influence from all metaballs:
-# $$F(x,y,z) = \sum_{i=1}^n \frac{R^2_i}{(x-x_i)^2+(y-y_i)^2+(z-z_i)^2}$$
+# $$F(x, y, z) = \sum_{i=1}^{n} f(x_i, y_i, z_i)$$
 
 The final surface is all the points where $F(x,y,z)=T$, where $T$ is the threshold value. When two metaballs get close, their influence fields overlap, and the summed value between them exceeds the threshold, creating the smooth, merged "blob" effect.
+
+## A Deeper Dive: My Implementation's Equation
+This project uses a variation of the inverse-square function, specifically optimized for performance and visual style. The core formula for calculating the influence of a single ball at a given point is:
+
+```javascript
+sum += (ball.r * ball.r * 1000) / distSq;
+```
+
+or, using $MathJax$:
+# $$f(x,y,z) = \frac{R^2 * 1000}{d^2}
+
+Here, $d$ is the distance to the metaball center, and $1000$ is a **scaling factor** used to control the overall "field strength" relative to the chosen threshold. The code uses `distSq`, which represents $d^2$, to avoid the computationally expensive square root calculation.
+
+The combined influence of all the metaballs is then the sum of these functions:
+
+# $$F(x,y,z) = \sum_{i=1}^n \frac{R^2_i * 1000}{d^2_i}$$
+
+While different from the classic equation, this formula achieves the same organic effect by correctly defining the field of influence.
 
 ### Rendering the Surface: The Marching Cubes Algorithm
 Since the metaball surface isn't a regular polygonal mesh, it needs to be generated. The most common way to do this for 3D metaballs is using the **Marching Cubes algorithm**.
