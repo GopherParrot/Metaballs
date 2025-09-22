@@ -11,14 +11,14 @@ The surface of the final blobby shape isn't a pre-defined mesh; it's an isosurfa
 
 ## The magic behind
 there's no magic, magic isn't real, it's all Math! The mathematical function for a single metaball's influence at a point is often an inverse distance function, like:
-$$f(x,y,z) = \frac{R^2}{(x-x_0)^2+(y-y_0)^2+(z-z_0)^2}$$
+# $$f(x,y,z) = \frac{R^2}{(x-x_0)^2+(y-y_0)^2+(z-z_0)^2}$$
 Where:
  - $(x,y,z)$ is the point being evaluated.
  - $(x_0,y_0,z_0)$ is the center of the metaball.
  - $R$ is a constant that controls the radius and strength of the influence.
 
 For a scene with multiple metaballs, the total field value at any point is the summation of the influence from all metaballs:
-$$F(x,y,z) = \sum_{i=1}^n \frac{R^2_i}{(x-x_i)^2+(y-y_i)^2+(z-z_i)^2}$$
+# $$F(x,y,z) = \sum_{i=1}^n \frac{R^2_i}{(x-x_i)^2+(y-y_i)^2+(z-z_i)^2}$$
 
 The final surface is all the points where $F(x,y,z)=T$, where $T$ is the threshold value. When two metaballs get close, their influence fields overlap, and the summed value between them exceeds the threshold, creating the smooth, merged "blob" effect.
 
