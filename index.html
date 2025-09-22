@@ -233,7 +233,7 @@
                 </label>
                 <label class="flex items-center justify-between gap-2 text-sm text-gray-300">
                     Resize All:
-                    <input type="range" id="globalResizeSlider" min="20" max="100" value="45" class="range-slider">
+                    <input type="range" id="globalResizeSlider" min="20" max="100" value="25" class="range-slider">
                 </label>
             </div>
             <button id="howToPlayButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">How to Play</button>
@@ -354,7 +354,7 @@
             return null;
         }
 
-        // Resets the interaction state to a clean slate.
+        // Resets the interaction state to a clean slate
         function resetInteractionState() {
             selectedBall = null;
             isDragging = false;
@@ -415,8 +415,8 @@
                 }
                 resetInteractionState();
             }
-            // If it wasn't a drag, the long-press timer might still be running.
-            // We'll let it finish or be cleared by the next mousedown.
+            // If it wasn't a drag, the long-press timer might still be running
+            // We'll let it finish or be cleared by the next mousedown
         }
 
         canvas.addEventListener('mousedown', handleMouseDown);
@@ -501,7 +501,8 @@
         // Prevent default drag behavior
         canvas.addEventListener('dragstart', (e) => e.preventDefault());
 
-        // --- Animation Loop ---
+        // --- AHHGHGHAHGHAGSDG *ahem* sorry I got a bit too hyped... anyways... ---
+        // --- Animation Loop --
         function animate() {
             // Add a defensive check for canvas dimensions
             if (canvas.width <= 0 || canvas.height <= 0) {
