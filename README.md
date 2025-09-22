@@ -18,7 +18,7 @@ Where:
  - $R$ is a constant that controls the radius and strength of the influence.
 
 For a scene with multiple metaballs, the total field value at any point is the summation of the influence from all metaballs:
-$$F(x,y,z) = \sum{i=1}^n \frac{R^2_i}{(x-x_i)^2+(y-y_i)^2+(z-z_i)^2}$$
+$$F(x,y,z) = \sum_{i=1}^n \frac{R^2_i}{(x-x_i)^2+(y-y_i)^2+(z-z_i)^2}$$
 
 The final surface is all the points where $F(x,y,z)=T$, where $T$ is the threshold value. When two metaballs get close, their influence fields overlap, and the summed value between them exceeds the threshold, creating the smooth, merged "blob" effect.
 
