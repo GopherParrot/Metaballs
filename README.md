@@ -33,7 +33,7 @@ sum += (ball.r * ball.r * 1000) / distSq;
 ```
 
 or, using $MathJax$:
-# $$f(x,y,z) = \frac{R^2 * 1000}{d^2}
+# $$f(x,y,z) = \frac{R^2 * 1000}{d^2}$$
 
 Here, $d$ is the distance to the metaball center, and $1000$ is a **scaling factor** used to control the overall "field strength" relative to the chosen threshold. The code uses `distSq`, which represents $d^2$, to avoid the computationally expensive square root calculation.
 
