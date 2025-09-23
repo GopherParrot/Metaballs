@@ -19,26 +19,34 @@
             color: #c9d1d9;
             overflow: hidden;
         }
+
+
         canvas {
             display: block;
             width: 100vw;
             height: 100vh;
             touch-action: none; /* Prevents default browser gestures like scrolling */
         }
+
         .ui-container {
             position: absolute;
             top: 1rem;
             left: 1rem;
             z-index: 10;
         }
+
         .settings-icon {
             cursor: pointer;
             transition: transform 0.2s ease-in-out;
             color: #e6edf3;
         }
+
+
         .settings-icon:hover {
             transform: scale(1.1) rotate(45deg);
         }
+
+
         .panel {
             background-color: #21262d;
             padding: 1rem;
@@ -51,16 +59,19 @@
             width: 90%;
             height: 80%;
         }
+
         .panel-heading {
             font-size: 1.125rem;
             font-weight: bold;
             color: #e6edf3;
         }
+
         .panel-content {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
         }
+
         .switch {
             position: relative;
             display: inline-block;
