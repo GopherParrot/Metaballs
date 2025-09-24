@@ -65,3 +65,5 @@ be.
 
 # The code result:
 <img width="1367" height="701" alt="image" src="https://github.com/user-attachments/assets/e317ad45-7db3-4961-9276-4839783dd5cd" />
+
+... yeah I love it 😀
