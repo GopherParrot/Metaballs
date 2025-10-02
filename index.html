@@ -19,8 +19,6 @@
             color: #c9d1d9;
             overflow: hidden;
         }
-
-
         canvas {
             display: block;
             width: 100vw;
@@ -83,6 +81,7 @@
             width: 0;
             height: 0;
         }
+        
         .slider {
             position: absolute;
             cursor: pointer;
@@ -111,6 +110,7 @@
         input:checked + .slider:before {
             transform: translateX(1.5rem);
         }
+        
         .range-slider {
             -webkit-appearance: none;
             width: 100%;
@@ -120,6 +120,7 @@
             border-radius: 0.25rem;
             cursor: pointer;
         }
+        
         .range-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -130,6 +131,7 @@
             cursor: pointer;
             transition: background .2s ease-in-out;
         }
+        
         .range-slider::-moz-range-thumb {
             width: 1.25rem;
             height: 1.25rem;
@@ -138,6 +140,8 @@
             cursor: pointer;
             transition: background .2s ease-in-out;
         }
+
+        
         .modal {
             position: absolute;
             top: 50%;
@@ -159,6 +163,9 @@
             color: #e6edf3;
             text-align: center;
         }
+
+
+        
         .modal-buttons {
             display: flex;
             justify-content: space-around;
